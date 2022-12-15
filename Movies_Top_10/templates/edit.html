@@ -1,18 +1,35 @@
 {% extends 'base.html' %}
-{% import "bootstrap/wtf.html" as wtf %}
-
-{% block styles %}
-  {{ super() }}
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-{% endblock %}
 
 {% block title %}Edit Movies{% endblock %}
 
 {% block content %}
 <div class="content">
-  <h1 class="heading">Movie Title</h1>
-    <p class="description">Edit Movie Rating</p>
+  <h1 class="heading">{{ movie['title'] }}</h1>
+  <p class="description">Edit Movie Rating</p>
+</div>
+<div class="container">
+  <div class="row justify-content-md-center">
+    <div class="col col-sm-4">
+      <form action="{{ url_for('edit') }}" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <input type="hidden" name="id" value="{{ movie['id'] }}">
+        <p>
+          {{ form.new_rating.label }} <br> {{ form.new_rating(autofocus=True) }}
+          {% for err in form.new_rating.errors %}
+          <span style="color: red;">{{ err }}</span>
+          {% endfor %}
+        </p>
+        <p>
+          {{ form.new_review.label }} <br> {{ form.new_review}}
+          {% for err in form.new_review.errors %}
+          <span style="color: red;">{{ err }}</span>
+          {% endfor %}
+        </p>
+  
+        {{ form.submit() }}
+      </form>
+    </div>
   </div>
+</div>
+
 {% endblock %}
