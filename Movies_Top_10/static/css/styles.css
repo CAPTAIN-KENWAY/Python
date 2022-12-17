@@ -255,3 +255,11 @@ p.overview {
 label {
 	font-weight: bold;
 }
+
+.sucess {
+	color: #0f5132;
+}
+
+.warning {
+	color: #842029;
+}
