@@ -2,9 +2,14 @@ from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, HiddenField
+from wtforms import StringField, SubmitField
 from wtforms.validators import InputRequired
 import requests
+
+SEARCH_URL = "https://api.themoviedb.org/3/search/movie"
+MOVIE_URL = "https://api.themoviedb.org/3/movie/"
+API_KEY = "bd68532447e6f3d03e92a058c1e6403e"
+IMAGE_URL = 'https://image.tmdb.org/t/p/original'
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
@@ -25,11 +30,19 @@ class Movie(db.Model):
     img_url = db.Column(db.String(1000), nullable=False)
 
 
+class Add_Form(FlaskForm):
+    movie_title = StringField('Movie Title', validators=[InputRequired()])
+    submit = SubmitField('Add Movie')
+
+
 class Edit_Form(FlaskForm):
     new_rating = StringField('Your Rating Out of 10 e.g. 7.5', validators=[InputRequired()])
     new_review = StringField('Your Review')
     submit = SubmitField('Done')
 
+
+def select():
+    pass
 
 # new_movie=Movie(
 #     title="Drive",
@@ -50,6 +63,23 @@ def home():
     return render_template("index.html", movies=Movie.query.all())
 
 
+@app.route("/add", methods=['GET', 'POST'])
+def add():
+    form = Add_Form()
+    if form.validate_on_submit() and request.method == 'POST':
+        search = request.form['movie_title']
+        parameters = {
+            'language': 'en-US',
+            'api_key': API_KEY,
+            'query': search,
+            'page': 1
+        }
+        movies = requests.get(url=SEARCH_URL, params=parameters).json()
+        return render_template('select.html', movies=movies['results'])
+
+    return render_template('add.html', form=form)
+
+
 @app.route("/edit", methods=['GET', 'POST'])
 def edit():
     movie_id = request.args.get('id', type=int)
@@ -64,8 +94,16 @@ def edit():
         db.session.commit()
         return redirect(url_for('home'))
 
-
     return render_template("edit.html", movie=movie, form=form)
+
+
+@app.route("/delete", methods=['GET', 'POST'])
+def delete():
+    movie_id = request.args.get('id', type=int)
+    movie = Movie.query.get(movie_id)
+    db.session.delete(movie)
+    db.session.commit()
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':
