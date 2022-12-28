@@ -135,7 +135,7 @@ def find():
 @app.route("/edit", methods=['GET', 'POST'])
 def edit():
 
-    # Getting the movie id from post reqest
+    # Getting the movie id from post request
     movie_id = request.args.get('id', type=int)
     movie = Movie.query.get(movie_id)
     form = Edit_Form()
